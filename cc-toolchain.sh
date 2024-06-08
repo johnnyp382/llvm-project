@@ -72,7 +72,6 @@ WDIR="$HOME/work"
 mkdir -pv $WDIR/{linux/iphone/,libplist/}
 
 echo "[!] Prep build for release"
-tar -cJvf $HOME/iOSToolchain.tar.xz -C $WDIR linux/iphone/ \echo "[!] Build LLVM/Clang"
 # build clang & llvm/clang-tblgen for host with support for target
 cmake -B build-host -G "Ninja" \
 	-DCMAKE_C_COMPILER=/usr/bin/$ARCH-linux-gnu-gcc \
@@ -92,7 +91,8 @@ cmake -B build -G "Ninja" \
 	-DCMAKE_CROSSCOMPILING=True \
 	-DLLVM_TARGET_ARCH=$1 \
 	-DLLVM_DEFAULT_TARGET_TRIPLE=$1-linux-gnu \
-	-DLLVM_ENABLE_PROJECTS="clang;libcxx;libcxxabi" \
+	-DLLVM_ENABLE_PROJECTS="clang" \
+	-DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
 	-DLLVM_LINK_LLVM_DYLIB=ON \
 	-DLLVM_ENABLE_LIBXML2=OFF \
 	-DLLVM_ENABLE_ZLIB=OFF \
