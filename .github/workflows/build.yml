@@ -1,0 +1,47 @@
+name: Build
+
+on:
+  push:
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+        with:
+          sparse-checkout: .github
+
+      - name: Create release
+        run: |
+          TAG="${GITHUB_REF##*/}-${GITHUB_SHA:0:7}"
+          gh release create "$TAG" --draft --title "Draft Release"
+
+  build:
+    needs: create-release
+    strategy:
+      matrix:
+        arch:
+          - "aarch64"
+          - "host"
+
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build toolchain
+        run: |
+          if [[ ${{ matrix.arch }} == host ]]; then
+            ./host-toolchain.sh
+            mv -v $HOME/iOSToolchain.tar.xz $HOME/iOSToolchain-$(uname -m).tar.xz
+          else
+            cp -av cc.sh $HOME
+            ./cc-toolchain.sh ${{ matrix.arch }}
+            mv -v $HOME/iOSToolchain.tar.xz $HOME/iOSToolchain-${{ matrix.arch }}.tar.xz
+          fi
+
+      - name: Upload toolchain
+        run: |
+          TAG="${GITHUB_REF##*/}-${GITHUB_SHA:0:7}"
+          gh release upload "$TAG" $HOME/iOSToolchain*.tar.xz
