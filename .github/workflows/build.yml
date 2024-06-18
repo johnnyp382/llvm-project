@@ -8,7 +8,7 @@ env:
 
 jobs:
   create-release:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
         with:
@@ -25,9 +25,8 @@ jobs:
       matrix:
         arch:
           - "aarch64"
-          - "host"
 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build toolchain
